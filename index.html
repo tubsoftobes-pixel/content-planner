@@ -258,7 +258,17 @@ td.t{min-width:220px;font-weight:500;cursor:pointer;overflow-wrap:anywhere}
 .modal textarea{width:100%;min-height:220px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:var(--field);border:1px solid var(--line);border-radius:16px;padding:12px;resize:vertical}
 @media (max-width:1180px){
   .app{grid-template-columns:84px minmax(0,1fr)}
-  .panel{grid-column:1 / -1;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:start}
+  .app>.panel{grid-column:2}
+  .main>.panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;align-items:stretch;padding:14px}
+  .main>.panel .p-id{gap:10px}
+  .main>.panel .p-top{display:none}
+  .main>.panel .profile{flex-direction:row;justify-content:flex-start;text-align:left;gap:12px}
+  .main>.panel .avatar{width:48px;height:48px;flex:none}
+  .main>.panel .p-name{font-size:17px}
+  .main>.panel .bars{min-height:110px}
+  .main>.panel .pcs{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .main>.panel .pc{flex:0 0 220px}
+  .main>.backup-row{max-width:560px}
 }
 @media (max-width:820px){
   .app{grid-template-columns:minmax(0,1fr);padding:12px;border-radius:28px;gap:14px}
@@ -269,10 +279,11 @@ td.t{min-width:220px;font-weight:500;cursor:pointer;overflow-wrap:anywhere}
   .readout{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bs{grid-template-columns:minmax(0,1fr)}
   .board{grid-auto-columns:minmax(82%,1fr)}
-  .panel{grid-template-columns:minmax(0,1fr)}
+  .app>.panel{grid-column:1}
   .drawer{border-radius:28px 28px 0 0;top:auto;height:92%;width:100%}
 }
 @media (max-width:520px){
+  .main>.panel{grid-template-columns:minmax(0,1fr)}
   .grid2,.media{grid-template-columns:1fr}
   .filters-2 input{width:100%}
 }
@@ -357,7 +368,7 @@ td.t{min-width:220px;font-weight:500;cursor:pointer;overflow-wrap:anywhere}
     </div>
     <section class="card-w" id="activity" aria-label="Activity"></section>
     <section id="soon" aria-label="In production"></section>
-    <section class="card-w backup-row" aria-label="Backup">
+    <section class="card-w backup-row" id="backup-card" aria-label="Backup">
       <div class="k">Backup</div>
       <p class="hint" style="margin:4px 0 12px">Everything saves in this browser automatically. Export a copy in case it gets cleared.</p>
       <div class="row">
@@ -1367,6 +1378,22 @@ window.addEventListener('drop',function(e){
 });
 
 /* ---------- boot ---------- */
+var mqMid=window.matchMedia('(max-width:1180px)'),mqPhone=window.matchMedia('(max-width:820px)');
+function placePanel(){
+  var app=$('.app'),main=$('.main'),panel=$('.panel'),bk=$('#backup-card'),head=main&&main.querySelector('header');
+  if(!app||!main||!panel||!head||!bk)return;
+  if(mqMid.matches){
+    if(mqPhone.matches){if(panel.parentNode!==main||main.firstElementChild!==panel)main.prepend(panel)}
+    else if(panel.parentNode!==main||panel.previousElementSibling!==head){head.after(panel)}
+    if(bk.parentNode!==main)main.append(bk);
+  }else{
+    if(panel.parentNode!==app)app.append(panel);
+    if(bk.parentNode!==panel)panel.append(bk);
+  }
+}
+if(mqMid.addEventListener){mqMid.addEventListener('change',placePanel);mqPhone.addEventListener('change',placePanel)}
+else{mqMid.addListener(placePanel);mqPhone.addListener(placePanel)}
+placePanel();
 localHad=lsLoad();
 if(localHad){
   localHad.projects.forEach(function(p){state.projects.set(p.id,p)});
